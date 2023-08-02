@@ -38,7 +38,9 @@
         </div>
         <div class="content">
             <div class="fileInputDiv">
-                <form action="" method="POST">{% csrf_token %}
+                <form action="calculate/" method="POST" enctype="multipart/form-data">{% csrf_token %}
+                    <!-- action속성을 통해 calculate 앱으로 보내준다. -->
+                    <!-- enctype속성을 통해 웹에서의 파일 업로드를 서버로 전송한다.  -->
                     <div class="input-group">
                         하단 버튼을 통해 파일을 업로드 해주세요.(.xls 확장자의 파일만 가능합니다.)<br>
                         <input id="fileInput" name="fileInput" type="file" class="form-control">

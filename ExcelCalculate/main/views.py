@@ -6,7 +6,17 @@ from sendEmail.views import *
 
 # Create your views here.
 def index(request):
-    return render(request, 'main/index.html')
+    if 'user_name' in request.session.keys():
+        # 정상적으로 login 함수를 거쳤다면 request.session['user_name']을 통해
+        # 'user_name'이 session에 존재할 것이므로 조건문 실행
+        return render(request, 'main/index.html')
+            # 사용자의 세션 정보가 담겨져 있는 상태의 index.html을 화면에 표시
+    else:
+        return redirect('main_signin')
+            # login 되지 않은 상태이기 때문에 다시 로그인 화면으로 리디렉션
+    
+    # return render(request, 'main/index.html')
+        # 세션 정보가 없는 index.html
 
 def signup(request):
     return render(request, 'main/signup.html')
@@ -50,6 +60,21 @@ def join(request):
 def signin(request):
     return render(request, 'main/signin.html')
 
+def login(request):
+    # 로그인된 사용자만 이용할 수 있도록 구현
+    # 이 때, 현재 사용자가 로그인된 사용자인지 판단하기 위해 세션 사용(verify에서 만든 세션)
+    # 세션 처리 진행
+    loginEmail = request.POST['loginEmail']
+    loginPW = request.POST['loginPW']
+    user = User.objects.get(user_email=loginEmail)
+    if user.user_password == loginPW:
+        request.session['user_name'] = user.user_name
+        request.session['user_email'] = user.user_email
+        return redirect('main_index')
+    else:
+        # 로그인 실패, 정보가 다름
+        return redirect("main_loginFail")
+
 def verifyCode(request):
     return render(request, 'main/verifyCode.html')
 
@@ -77,13 +102,13 @@ def verify(request):
         response.delete_cookie('code')
         response.delete_cookie('user_id')
             # 저장되어 있는 쿠키를 삭제
-        response.set_cookie('user', user)
+        # response.set_cookie('user', user)
             # user 객체를 response에 'user'라는 이름의 쿠키에 생성한다. 이 쿠키는 추후 인증이 필요한 경우 사용된다.
 
-        # 사용자 정보를 세션에 저장
-        # request.session['user_name'] = user.user_name
-        # request.session['user_email'] = user.user_email
+        request.session['user_name'] = user.user_name
+        request.session['user_email'] = user.user_email
             # user의 name과 email값을 세션에 할당한다.
+
         return response
             # 메인페이지로 리디렉션한다.
 
@@ -93,4 +118,15 @@ def verify(request):
             # 메인페이지로 리디렉션한다.
 
 def result(request):
-    return render(request, 'main/result.html')
+    if 'user_name' in request.session.keys():
+        # 로그인 상태라면 조건문 실행
+        return render(request, 'main/result.html')
+    else:
+        return redirect('main_signin')
+
+def logout(request):
+    del request.session['user_name']
+    del request.session['user_email']
+    # 세션정보를 삭제하는 것으로 로그인 상태를 해제한다.
+
+    return redirect('main_signin')
