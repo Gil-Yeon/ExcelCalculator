@@ -64,16 +64,32 @@ def login(request):
     # 로그인된 사용자만 이용할 수 있도록 구현
     # 이 때, 현재 사용자가 로그인된 사용자인지 판단하기 위해 세션 사용(verify에서 만든 세션)
     # 세션 처리 진행
+
     loginEmail = request.POST['loginEmail']
     loginPW = request.POST['loginPW']
-    user = User.objects.get(user_email=loginEmail)
+    	# 사용자 요청으로부터 email과 pw를 가져와 변수에 할당한다.
+
+    try:
+        user = User.objects.get(user_email=loginEmail)
+    	# User 모델에서 입력한 이메일(loginEmail)과 같은 이메일을 가진 유저 데이터를 가져와 user에 할당한다.
+    except:
+        return redirect("main_loginFail")
+    
     if user.user_password == loginPW:
+    	# 모델에서 가져온 pw와 입력한 패스워드(loginPW)가 서로 같다면 실행
         request.session['user_name'] = user.user_name
         request.session['user_email'] = user.user_email
+        	# 해당 유저의 이름과 이메일을 세션에 저장하여 로그인한 상태로 처리한다.
         return redirect('main_index')
+        	# 메인 인덱스로 리디렉션 시킨다.
     else:
         # 로그인 실패, 정보가 다름
         return redirect("main_loginFail")
+        	# loginFail로 리디렉션 시킨다.
+
+def loginFail(request):
+    return render(request, 'main/loginFail.html')
+        # loginFail.html을 화면에 띄워준다.
 
 def verifyCode(request):
     return render(request, 'main/verifyCode.html')
@@ -119,8 +135,19 @@ def verify(request):
 
 def result(request):
     if 'user_name' in request.session.keys():
-        # 로그인 상태라면 조건문 실행
-        return render(request, 'main/result.html')
+        # 로그인 했으므로 user_name, user_email 세션이 존재
+        # calculate에서 요청한 grade_calculate_dic, email_domain_dic 세션이 존재
+        content = {}
+        content['grade_calculate_dic'] = request.session['grade_calculate_dic']
+        content['email_domain_dic'] = request.session['email_domain_dic']
+            # 보안 문제로 calculate에서 요청한 세션을 새로운 객체에 저장
+
+        del request.session['grade_calculate_dic']
+        del request.session['email_domain_dic']
+            # calculate에서 저장한 기존 세션 삭제
+
+        return render(request, 'main/result.html', content)
+            # 사용자의 세션 정보가 content에 담겨 있는 상태에서 main > result.html을 띄워준다. 
     else:
         return redirect('main_signin')
 

@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 import pandas as pd
 
@@ -73,9 +73,35 @@ def calculate(request):
     for key in email_domain_dic.keys():
         print('#', key, ":", email_domain_dic[key], '명')
 
+    # python과 django에서 pandas는 데이터 타입이 조금 다름
+    # pandas의 데이터 타입 --> 파이선 기본 데이터 타입으로 변환
+
+    grade_calculate_dic_to_session = {}
+    for key in grade_list:
+        grade_calculate_dic_to_session[int(key)] = {}
+        grade_calculate_dic_to_session[int(key)]['max'] = int(grade_calculate_dic[key]['max']) # float 자료형으로 변환
+        grade_calculate_dic_to_session[int(key)]['avg'] = "{:.6f}".format(float(grade_calculate_dic[key]['avg'])) # float 자료형으로 변환
+        grade_calculate_dic_to_session[int(key)]['min'] = int(grade_calculate_dic[key]['min']) # float 자료형으로 변환
+
+    email_domain_dic = dict(sorted(email_domain_dic.items(), key=lambda item:item[1], reverse=True))
+
+    request.session['grade_calculate_dic'] = grade_calculate_dic_to_session
+    request.session['email_domain_dic'] = email_domain_dic
+
+    print("")
+    print("")
+    print("")
+    print("")
+    print("")
+    print(grade_calculate_dic[key])
+
+    return redirect('/result')
+        # vewis.result가 아닌 다이렉트로 result페이지로 가야 하므로 name이 아닌 'result' 입력
+
+    # # 위 코드를 간략하게 수정
     # # gropuby 활용
-    # grade_df_1 = df.groupby('grade')['value'].agg(['min','max','mean']).reset_index()
-    # print(grade_df_1)
+    # grade_df = df.groupby('grade')['value'].agg(['min','max','mean']).reset_index()
+    # print(grade_df)
     # print("")
     
     # # pivot_table 활용
@@ -92,5 +118,3 @@ def calculate(request):
     # df['domain'] = df['email'].str.split('@').str[1]
     # domain_df = df.groupby('domain')['value'].agg('count').sort_values(ascending=False).reset_index()
     # print(domain_df)
-    
-    return HttpResponse('calculate, calculate function!')

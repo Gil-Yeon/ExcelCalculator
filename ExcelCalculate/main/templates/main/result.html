@@ -23,7 +23,17 @@
         }
         .panel-footer{
             height:10%;
-            color:gray;
+        }
+
+        table {
+        width: 100%;
+        border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid ;
+            text-align: center;
+            padding: 8px;
         }
     </style>
 
@@ -40,12 +50,57 @@
         <div class='body'>
             <div class="resultDiv">
                 <h3> * Excel 결과 확인 *</h3>
+                <h4> - grade별 최솟값, 최댓값, 평균값</h4>
+                {% for key, value in grade_calculate_dic.items %} 
+                    <h5>GRADE: {{ key }}</h5>
+                    <p><strong>최솟값 : </strong> {{ value.min }}</p>
+                    <p><strong>최댓값 : </strong> {{ value.max }}</p>
+                    <p><strong>평균값 : </strong> {{ value.avg }}</p>
+                    <br>
+                {% endfor %}
+                    <!-- grade_calculate_dic에서 값을 가져온다. -->
+                <br>
+                <h4> - 이메일별 주소 도메인 인원 </h4>
+                {% for key, value in email_domain_dic.items %}
+                    <p><strong>{{ key }}: </strong> {{ value }}명</p>
+                {% endfor %}
+                    <!-- email_domain_dic에서 값을 가져온다. -->
             </div>
-            <hr>
+            <hr>     
         </div>
-        <div class="panel-footer">
-            실전예제로 배우는 Django. Project3-ExcelCalculate
+
+        <div>
+            <table>
+                <tr>    
+                    <th>grade</th>
+                    <th>min</th>
+                    <th>max</th>
+                    <th>avg</th>
+                </tr>
+                {% for key, value in grade_calculate_dic.items %}
+                <tr>
+                    <td>{{key}}</td>
+                    <td>{{value.min}}</td>
+                    <td>{{value.max}}</td>
+                    <td>{{value.avg}}</td>
+                </tr>
+                {% endfor %}
+            </table>
         </div>
-    </div>
-</body>
-</html>
+
+        <hr>
+
+        <div>
+            <table>
+                <tr>
+                    <th>domain</th>
+                    <th>value</th>
+                </tr>
+                {% for key, value in email_domain_dic.items %}
+                <tr>
+                    <td>{{key}}</td>
+                    <td>{{value}}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
